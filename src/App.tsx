@@ -1,54 +1,53 @@
-import React from "react";
-import logo from "./logo.svg";
-import Counter from "./features/counter/Counter";
-import { Provider } from "react-redux";
-import store from "./store";
-import styled from "@emotion/styled";
-import { keyframes } from "@emotion/core";
+import React, { Suspense, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { styled } from "@linaria/react";
+import { Link, Route, Switch } from "react-router-dom";
 
-const Container = styled.div`
-  text-align: center;
-`;
+import { ReactComponent as StarIcon } from "./star.svg";
 
 const Header = styled.header`
-  background-color: #282c34;
-  min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  justify-content: space-between;
+
+  margin: 15px;
+  padding: 20px;
+  font-size: 1.5rem;
+  background-color: #7dc2f5;
   color: #fff;
+  border-radius: 8px;
 `;
 
-const float = keyframes`
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-10px);
-  }
+const StyledLink = styled(Link)`
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
 `;
 
-const Logo = styled.img`
-  height: 20vmin;
-  pointer-events: none;
-
-  @media (prefers-reduced-motion: no-preference) {
-    animation: ${float} 2s alternate infinite;
-  }
-`;
+const PageOne = React.lazy(() => import("./pages/page-one"));
+const PageTwo = React.lazy(() => import("./pages/page-two"));
 
 const App = () => {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch({ type: "WORD_FETCH_REQUESTED", payload: "example" });
+  }, []);
+
   return (
-    <Provider store={store}>
-      <Container>
-        <Header>
-          <Logo src={logo} alt="logo" />
-          <Counter />
-        </Header>
-      </Container>
-    </Provider>
+    <>
+      <Header>
+        <StyledLink to="/">Word Keeper</StyledLink>
+        <StyledLink to="/stars">
+          <StarIcon /> Starred Words
+        </StyledLink>
+      </Header>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Switch>
+          <Route exact path="/" component={PageOne} />
+          <Route path="/stars" component={PageTwo} />
+        </Switch>
+      </Suspense>
+    </>
   );
 };
 
